@@ -3,22 +3,30 @@ import {useRerender} from '@react-hookz/web';
 
 import type {FunctionComponent} from 'react';
 
-type ChildProps = {
+type RenderItemProps = {
   item: FunctionComponent;
 };
 
-function RenderItem({item: Item}: ChildProps) {
+function BrokenRenderItem({item: Item}: RenderItemProps) {
   return <Item />;
 }
 
-function Item() {
+function RenderItem({item}: RenderItemProps) {
+  return item({name: 'default'});
+}
+
+type ItemProps = {
+  name: string;
+};
+
+function Item({name}: ItemProps) {
   useEffect(() => {
-    console.log('mount');
+    console.log(`${name}: mount`);
 
     return () => {
-      console.log('unmount');
+      console.log(`${name}: unmount`);
     };
-  });
+  }, [name]);
 
   return <p>item</p>;
 }
@@ -28,7 +36,8 @@ export function Example1() {
 
   return (
     <div>
-      <RenderItem item={Item} />
+      <BrokenRenderItem item={() => <Item name='broken' />} />
+      <RenderItem item={() => <Item name='default' />} />
       <button onClick={rerender}>re-render</button>
     </div>
   );
